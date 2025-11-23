@@ -8,45 +8,50 @@ type Props = {
   weekDay?: string
   serie?: string
   reps?: string
+  onPress?: () => void
 }
 
-export function Card({ title, weekDay, serie, reps }: Props) {
+export function Card({ title, weekDay, serie, reps, onPress }: Props) {
   return (
-    <>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
       <View style={styles.container}>
-        <View style={styles.info}>
-          <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">{title}</Text>
+        <View style={styles.header}>
+          <View style={styles.info}>
+            <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">{title}</Text>
+          </View>
 
+          <View style={styles.icons}>
+            <Icon>
+              <Image size={18} color="#c2c7ce" />
+            </Icon>
+            <Icon>
+              <SquarePen size={18} color="#c2c7ce" />
+            </Icon>
+            <Icon>
+              <Trash2 size={18} color="#c2c7ce" />
+            </Icon>
+          </View>
+        </View>
+
+        <View style={styles.description}>
           {
             weekDay && weekDay.trim() !== '' ? (
               <Text style={styles.day}>{weekDay}</Text>
             ) : (
               <>
-                <Text style={styles.day}>Séries: {serie}</Text>
-                <Text style={styles.day}>Repetições: {reps}</Text>
+                <Text style={styles.serie}>
+                  Séries: 
+                  <Text>{serie}</Text>
+                </Text>
+                <Text style={styles.reps}>
+                  Repetições: 
+                  <Text>{reps}</Text>
+                </Text>
               </>
             )
           }
         </View>
-
-        <View style={styles.icons}>
-          <Icon>
-            <Image size={18} color="black" />
-          </Icon>
-          <Icon>
-            <SquarePen size={18} color="black" />
-          </Icon>
-          <Icon>
-            <Trash2 size={18} color="black" />
-          </Icon>
-        </View>
-
-
-
-
       </View>
-
-
-    </>
+    </TouchableOpacity>
   )
 }

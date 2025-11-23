@@ -4,6 +4,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    backgroundColor: '#0f172a'
   },
 
   header: {},
@@ -12,7 +13,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 16,
     gap: 7,
-    marginTop: 42
+    marginTop: 12
   },
 
   cards: {

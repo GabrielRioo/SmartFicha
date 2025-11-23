@@ -1,11 +1,32 @@
-import { Text } from 'react-native'
+import { Text, View } from 'react-native'
 import { styles } from '@/app/Exercise/styles'
 import { Card } from '@/components/Card'
+import { Header } from '@/components/Header'
+import { Button } from '@/components/Button'
+import { useNavigation } from '@react-navigation/native'
 
 export function Exercise() {
-  return(
+  const navigation = useNavigation();
+  
+  return (
     <>
-      <Card title='Triceps corda e polia extendida com barra' serie='3' reps='12'/>
+      <Header onPress={() => navigation.goBack()}/>
+
+       <View style={styles.buttons}>
+        <View style={styles.buttonWrapper}>
+          <Button title='Exportar' />
+        </View>
+
+        <View style={styles.buttonWrapper}>
+          <Button title='Deletar' />
+        </View>
+      </View>
+
+      <View style={styles.container}>
+        <Card title='Rosca direta' serie='3' reps='12' />
+        <Card title='Supino Reto' serie='3' reps='12' />
+        <Card title='Cruxifixo inverso na barra' serie='3' reps='12' />
+      </View>
     </>
-  ) 
+  )
 }
