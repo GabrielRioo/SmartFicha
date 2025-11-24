@@ -12,6 +12,6 @@ export const styles = StyleSheet.create({
   tittle: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: 600
+    fontWeight: 600,
   }
 })

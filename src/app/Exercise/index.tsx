@@ -4,6 +4,7 @@ import { Card } from '@/components/Card'
 import { Header } from '@/components/Header'
 import { Button } from '@/components/Button'
 import { useNavigation } from '@react-navigation/native'
+import { Download } from 'lucide-react-native'
 
 export function Exercise() {
   const navigation = useNavigation();
@@ -14,11 +15,11 @@ export function Exercise() {
 
        <View style={styles.buttons}>
         <View style={styles.buttonWrapper}>
-          <Button title='Exportar' />
+          <Button title='Exportar' icon={<Download size={18} color={'white'}/>}/>
         </View>
 
         <View style={styles.buttonWrapper}>
-          <Button title='Deletar' />
+          <Button title='Novo Exercicio' />
         </View>
       </View>
 
