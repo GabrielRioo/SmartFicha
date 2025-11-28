@@ -8,10 +8,24 @@ type Props = {
   weekDay?: string
   serie?: string
   reps?: string
+  image?: boolean
   onPress?: () => void
+  onPressImage?: () => void
+  onPressEdit?: () => void
+  onPressDelete?: () => void
 }
 
-export function Card({ title, weekDay, serie, reps, onPress }: Props) {
+export function Card({
+  title,
+  weekDay,
+  serie,
+  reps,
+  image,
+  onPress,
+  onPressImage,
+  onPressEdit,
+  onPressDelete,
+}: Props) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
       <View style={styles.container}>
@@ -21,15 +35,19 @@ export function Card({ title, weekDay, serie, reps, onPress }: Props) {
           </View>
 
           <View style={styles.icons}>
-            <Icon>
-              <Image size={18} color="#c2c7ce" />
-            </Icon>
-            <Icon>
+            {image && (
+              <Icon onPress={onPressImage}>
+                <Image size={18} color="#c2c7ce" />
+              </Icon>
+            )}
+            <Icon onPress={onPressEdit}>
               <SquarePen size={18} color="#c2c7ce" />
             </Icon>
-            <Icon>
+
+            <Icon onPress={onPressDelete}>
               <Trash2 size={18} color="#c2c7ce" />
             </Icon>
+
           </View>
         </View>
 
@@ -40,11 +58,11 @@ export function Card({ title, weekDay, serie, reps, onPress }: Props) {
             ) : (
               <>
                 <Text style={styles.serie}>
-                  Séries: 
+                  Séries:
                   <Text>{serie}</Text>
                 </Text>
                 <Text style={styles.reps}>
-                  Repetições: 
+                  Repetições:
                   <Text>{reps}</Text>
                 </Text>
               </>

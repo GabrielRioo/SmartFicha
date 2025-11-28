@@ -17,15 +17,17 @@ type Props = {
   value?: string;
   placeholder?: string;
   onSelect?: (day: string) => void;
+  onChangeText?: (day: string) => void;
   disabled?: boolean;
 }
 
-export function DropdownWeek({ value, placeholder = 'Selecione um dia', onSelect, disabled}: Props) {
+export function DropdownWeek({ value, placeholder = 'Selecione um dia', onSelect, onChangeText, disabled}: Props) {
   const [open, setOpen] = useState(false);
   const selected = value ?? null;
 
   function handleSelect(day: string) {
     onSelect?.(day);
+    onChangeText?.(day);
     setOpen(false);
   }
 

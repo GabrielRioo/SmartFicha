@@ -7,6 +7,8 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   GestureResponderEvent,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 
 type Props = {
@@ -30,35 +32,40 @@ export function ModalGeneric({
   children,
   showFooter = true
 }: Props) {
-  return(
+  return (
     <Modal visible={visible} transparent animationType='fade' statusBarTranslucent>
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.backdrop} />
       </TouchableWithoutFeedback>
 
       <View style={styles.center}>
-        <View style={styles.modal}>
-          {title ? <Text style={styles.title}>{title}</Text> : null}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ width: '100%' }}
+        >
+          <View style={styles.modal}>
+            {title ? <Text style={styles.title}>{title}</Text> : null}
 
-          <View style={styles.content}>
-            {children}
-          </View>
-
-          {showFooter ? (
-            <View style={styles.footer}>
-              <TouchableOpacity style={[styles.btn, styles.btnCancel]} onPress={onClose}>
-                <Text style={styles.btnText}>{cancelLabel}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.btn, styles.btnConfirm]}
-                onPress={(e) => { onConfirm?.(e); }}
-              >
-                <Text style={[styles.btnText, styles.btnConfirmText]}>{confirmLabel}</Text>
-              </TouchableOpacity>
+            <View style={styles.content}>
+              {children}
             </View>
-          ) : null}
-        </View>
+
+            {showFooter ? (
+              <View style={styles.footer}>
+                <TouchableOpacity style={[styles.btn, styles.btnCancel]} onPress={onClose}>
+                  <Text style={styles.btnText}>{cancelLabel}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.btn, styles.btnConfirm]}
+                  onPress={(e) => { onConfirm?.(e); }}
+                >
+                  <Text style={[styles.btnText, styles.btnConfirmText]}>{confirmLabel}</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </View>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   )

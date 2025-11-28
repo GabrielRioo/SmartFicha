@@ -12,7 +12,7 @@ type Props = {
 export function DropdownButton({ title = 'Criar Novo Treino', onSelectManual, onSelectAI }: Props) {
   const [open, setOpen] = useState(false)
 
-    function handleManual() {
+  function handleManual() {
     setOpen(false);
     onSelectManual?.();
   }
@@ -22,13 +22,13 @@ export function DropdownButton({ title = 'Criar Novo Treino', onSelectManual, on
     onSelectAI?.();
   }
 
-  return(
+  return (
     <>
-      {open && (
+      {/* {open && (
         <TouchableWithoutFeedback onPress={() => setOpen(false)}>
           <View style={styles.overlay} />
         </TouchableWithoutFeedback>
-      )}
+      )} */}
 
       <View style={styles.wrapper}>
         <TouchableOpacity
@@ -40,18 +40,25 @@ export function DropdownButton({ title = 'Criar Novo Treino', onSelectManual, on
         </TouchableOpacity>
       </View>
 
+      {/* overlay: coloca ANTES do menu (menu virá depois e ficará acima) */}
       {open && (
-          // Menu absoluto para não empurrar layout
-          <View style={styles.menu}>
-            <TouchableOpacity style={styles.item} onPress={handleManual}>
-              <Text style={styles.itemText}>Criar manualmente</Text>
-            </TouchableOpacity>
+        <TouchableWithoutFeedback onPress={() => setOpen(false)}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+      )}
 
-            <TouchableOpacity style={styles.item} onPress={handleAI}>
-              <Text style={styles.itemText}>Gerar por IA</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+      {open && (
+        // Menu absoluto para não empurrar layout
+        <View style={styles.menu}>
+          <TouchableOpacity style={styles.item} onPress={handleManual}>
+            <Text style={styles.itemText}>Criar manualmente</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.item} onPress={handleAI}>
+            <Text style={styles.itemText}>Gerar por IA</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </>
   )
 }
