@@ -7,6 +7,16 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16
   },
 
+  title: {
+    textAlign: 'center',
+    backgroundColor: '#0f172a',
+    color: 'white',
+    paddingTop: 18,
+    fontSize: 25,
+    textTransform: 'uppercase',
+    fontWeight: 'bold'
+  },
+
   buttons: {
     backgroundColor: '#0f172a',
     flexDirection: 'row',

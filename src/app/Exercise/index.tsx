@@ -3,28 +3,34 @@ import { styles } from '@/app/Exercise/styles'
 import { Card } from '@/components/Card'
 import { Header } from '@/components/Header'
 import { Button } from '@/components/Button'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { Download, ImageIcon } from 'lucide-react-native'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ModalGeneric } from '@/components/ModalGeneric'
 import * as ImagePicker from 'expo-image-picker';
 import { DropdownWeek } from '@/components/DropdownWeek'
+import { ExerciseCard } from '@/types/ExerciseCard'
+import { loadExercises, saveExercises } from '@/storage/trainingStorage'
 
-type TrainingCard = {
-  id: string;
-  title: string;
-  serie: string;
-  reps: string;
-  imageUri?: string | null;
-};
+// type ExerciseCard = {
+//   id: string;
+//   title: string;
+//   serie: string;
+//   reps: string;
+//   imageUri?: string | null;
+// };
 
 export function Exercise() {
-  const [selectedCard, setSelectedCard] = useState<TrainingCard | null>(null);
+  const route = useRoute();
+  const { title } = route.params as { title: string }
 
-  const [cards, setCards] = useState<TrainingCard[]>([
-      { id: '1', title: 'Peito e tríceps', serie: '3', reps: '12', imageUri: null },
-      { id: '2', title: 'Costas e bíceps', serie: '3', reps: '14', imageUri: null },
-    ]);
+  const [selectedCard, setSelectedCard] = useState<ExerciseCard | null>(null);
+
+
+  const [cards, setCards] = useState<ExerciseCard[]>([
+    { id: '1', title: 'Peito e tríceps', serie: '3', reps: '12', imageUri: null },
+    { id: '2', title: 'Costas e bíceps', serie: '3', reps: '14', imageUri: null },
+  ]);
 
   // modals
   const [showImageModal, setShowImageModal] = useState(false);
@@ -33,14 +39,31 @@ export function Exercise() {
 
   // estados para edição
   const [editTitle, setEditTitle] = useState('');
-  const [editWeekDay, setEditWeekDay] = useState('');
+  const [editSerie, setEditSerie] = useState('');
+  const [editReps, setEditReps] = useState('');
 
-  const [exerciseName, setExerciseName] = useState("")
+  const [cardTitle, setCardTitle] = useState('')
+  const [cardSerie, setCardSerie] = useState('')
+  const [cardReps, setCardReps] = useState('')
   const [exerciseImage, setExerciseImage] = useState<string | null>(null);
   const navigation = useNavigation();
 
   function handleCreateNewExercise() {
     setOpenModal(false)
+    setCards(prev => {
+      const newCard = [
+        ...prev,
+        {
+          id: '3',
+          title: cardTitle,
+          serie: cardSerie,
+          reps: cardReps,
+          imageUri: null
+        },
+      ]
+      saveExercises(newCard)
+      return newCard;
+    })
   }
 
   async function handlePickImage() {
@@ -65,79 +88,95 @@ export function Exercise() {
     }
   }
 
-  function handleOpenImageModal(card: TrainingCard) {
-      setSelectedCard(card);
-      setShowImageModal(true);
+  function handleOpenImageModal(card: ExerciseCard) {
+    setSelectedCard(card);
+    setShowImageModal(true);
+  }
+
+  async function handleReplaceImage() {
+    if (!selectedCard) return;
+
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert("Permissão negada", 'Ative o acesso à galeria para substituir a imagem.')
+      return;
     }
-  
-    async function handleReplaceImage() {
-      if (!selectedCard) return;
-  
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert("Permissão negada", 'Ative o acesso à galeria para substituir a imagem.')
-        return;
-      }
-  
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.7,
-        allowsEditing: true,
-        aspect: [4, 3],
-      })
-  
-      if (!result.canceled) {
-        const uri = result.assets[0].uri;
-  
-        setCards(prev =>
-          prev.map(item =>
-            item.id === selectedCard.id ? { ...item, imageUri: uri } : item
-          )
-        );
-  
-        // atualiza selectedCard também
-        setSelectedCard(prev => (prev ? { ...prev, imageUri: uri } : prev));
-      }
-    }
-  
-    function handleOpenEditModal(card: TrainingCard) {
-      setSelectedCard(card);
-      setEditTitle(card.title)
-      // setEditWeekDay(card.weekDay);
-      setShowEditModal(true);
-    }
-  
-    function handleSaveEdit() {
-      if (!selectedCard) return;
-  
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+      allowsEditing: true,
+      aspect: [4, 3],
+    })
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+
       setCards(prev =>
         prev.map(item =>
-          item.id === selectedCard.id
-            ? { ...item, title: editTitle, weekDay: editWeekDay }
-            : item
+          item.id === selectedCard.id ? { ...item, imageUri: uri } : item
         )
       );
-  
-      setShowEditModal(false);
-      setSelectedCard(null);
+
+      // atualiza selectedCard também
+      setSelectedCard(prev => (prev ? { ...prev, imageUri: uri } : prev));
     }
-  
-    function handleDeleteCard(card: TrainingCard) {
-      Alert.alert(
-        'Excluir treino',
-        `Tem certeza que deseja excluir "${card.title}"?`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Excluir',
-            style: 'destructive',
-            onPress: () => {
-              setCards(prev => prev.filter(item => item.id !== card.id));
-            },
+  }
+
+  function handleOpenEditModal(card: ExerciseCard) {
+    setSelectedCard(card);
+    setEditTitle(card.title)
+    // setEditWeekDay(card.weekDay);
+    setShowEditModal(true);
+  }
+
+  function handleSaveEdit() {
+    if (!selectedCard) return;
+
+    setCards(prev => {
+      const updatedCard =
+        prev.map(item =>
+          item.id === selectedCard.id
+            ? { ...item, title: editTitle, serie: editSerie, reps: editReps }
+            : item
+        )
+      saveExercises(updatedCard)
+      return updatedCard;
+    });
+
+    setShowEditModal(false);
+    setSelectedCard(null);
+  }
+
+  function handleDeleteCard(card: ExerciseCard) {
+    Alert.alert(
+      'Excluir treino',
+      `Tem certeza que deseja excluir "${card.title}"?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: () => {
+            setCards(prev => {
+              const deletedCard = prev.filter(item => item.id !== card.id)
+              saveExercises(deletedCard)
+              return deletedCard
+            });
           },
-        ]
-      );
+        },
+      ]
+    );
+  }
+
+  useEffect(() => {
+    async function load() {
+      const stored = await loadExercises();
+      setCards(stored)
     }
+
+    load();
+  }, [])
 
   return (
     <>
@@ -153,20 +192,22 @@ export function Exercise() {
         </View>
       </View>
 
+      <Text style={styles.title}>{title}</Text>
+
       <View style={styles.container}>
         {cards.map(card => (
-            <Card
-              key={card.id}
-              title={card.title}
-              serie={card.serie}
-              reps={card.reps}
-              image={true}
-              onPress={() => navigation.navigate('Exercise' as never)}
-              onPressImage={() => handleOpenImageModal(card)}
-              onPressEdit={() => handleOpenEditModal(card)}
-              onPressDelete={() => handleDeleteCard(card)}
-            />
-          ))}
+          <Card
+            key={card.id}
+            title={card.title}
+            serie={card.serie}
+            reps={card.reps}
+            image={true}
+            onPress={() => navigation.navigate('Exercise' as never)}
+            onPressImage={() => handleOpenImageModal(card)}
+            onPressEdit={() => handleOpenEditModal(card)}
+            onPressDelete={() => handleDeleteCard(card)}
+          />
+        ))}
         {/* <Card title='Rosca direta' serie='3' reps='12' image onPressImage={() => handleOpenImageModal(card)}
               onPressEdit={() => handleOpenEditModal(card)}
               onPressDelete={() => handleDeleteCard(card)}/>
@@ -185,8 +226,8 @@ export function Exercise() {
         <TextInput
           placeholder="Nome do Exercício"
           placeholderTextColor="#94a3b8"
-          value={exerciseName}
-          onChangeText={setExerciseName}
+          value={cardTitle}
+          onChangeText={setCardTitle}
           style={{ backgroundColor: '#0b1220', padding: 12, borderRadius: 8, color: '#fff', marginBottom: 8 }}
         />
 
@@ -195,6 +236,8 @@ export function Exercise() {
             placeholder="Séries"
             placeholderTextColor="#94a3b8"
             keyboardType="numeric"
+            value={cardSerie}
+            onChangeText={setCardSerie}
             style={[styles.input, styles.half, styles.rightGap]}
           />
 
@@ -202,6 +245,8 @@ export function Exercise() {
             placeholder="Repetições"
             placeholderTextColor="#94a3b8"
             keyboardType="numeric"
+            value={cardReps}
+            onChangeText={setCardReps}
             style={[styles.input, styles.half, styles.leftGap]}
           />
         </View>
@@ -234,66 +279,86 @@ export function Exercise() {
       </ModalGeneric>
 
       {/* Modal Imagem */}
-              <ModalGeneric
-                visible={showImageModal && !!selectedCard}
-                title={selectedCard?.title ?? 'Imagem do Treino'}
-                onClose={() => {
-                  setShowImageModal(false);
-                  setSelectedCard(null);
-                }}
-                showFooter={false}
-              >
-                {
-                  selectedCard?.imageUri ? (
-                    <Image
-                      source={{ uri: selectedCard.imageUri }}
-                      style={{ width: '100%', height: 250, borderRadius: 10, marginBottom: 12 }}
-                      resizeMode='cover' />
-                  ) : (
-                    <View style={{ marginBottom: 12 }}>
-                      <Text style={{ color: '#cbd5e1', textAlign: 'center' }}>
-                        Nenhuma imagem adicionada para este treino.
-                      </Text>
-                    </View>
-                  )}
-      
-                <View style={{ gap: 8 }}>
-                  <Button
-                    title={selectedCard?.imageUri ? 'Substituir imagem' : 'Adicionar imagem'}
-                    onPress={handleReplaceImage}
-                  />
-      
-                  <Button
-                    title='Fechar'
-                    onPress={() => {
-                      setShowImageModal(false);
-                      setSelectedCard(null);
-                    }}
-                  />
-                </View>
-      
-              </ModalGeneric>
-      
-              {/* Modal Edit */}
-              <ModalGeneric
-                visible={showEditModal && !!selectedCard}
-                title="Editar Treino"
-                onClose={() => {
-                  setShowEditModal(false);
-                  setSelectedCard(null);
-                }}
-                onConfirm={handleSaveEdit}
-                confirmLabel="Salvar"
-                cancelLabel="Cancelar"
-              >
-                <TextInput
-                  placeholder='Nome do Treino'
-                  placeholderTextColor='#94a3b8'
-                  value={editTitle}
-                  onChangeText={setEditTitle}
-                  style={{ backgroundColor: '#0b1220', padding: 12, borderRadius: 8, color: '#fff', marginBottom: 8 }}
-                />
-              </ModalGeneric>
+      <ModalGeneric
+        visible={showImageModal && !!selectedCard}
+        title={selectedCard?.title ?? 'Imagem do Treino'}
+        onClose={() => {
+          setShowImageModal(false);
+          setSelectedCard(null);
+        }}
+        showFooter={false}
+      >
+        {
+          selectedCard?.imageUri ? (
+            <Image
+              source={{ uri: selectedCard.imageUri }}
+              style={{ width: '100%', height: 250, borderRadius: 10, marginBottom: 12 }}
+              resizeMode='cover' />
+          ) : (
+            <View style={{ marginBottom: 12 }}>
+              <Text style={{ color: '#cbd5e1', textAlign: 'center' }}>
+                Nenhuma imagem adicionada para este treino.
+              </Text>
+            </View>
+          )}
+
+        <View style={{ gap: 8 }}>
+          <Button
+            title={selectedCard?.imageUri ? 'Substituir imagem' : 'Adicionar imagem'}
+            onPress={handleReplaceImage}
+          />
+
+          <Button
+            title='Fechar'
+            onPress={() => {
+              setShowImageModal(false);
+              setSelectedCard(null);
+            }}
+          />
+        </View>
+
+      </ModalGeneric>
+
+      {/* Modal Edit */}
+      <ModalGeneric
+        visible={showEditModal && !!selectedCard}
+        title="Editar Treino"
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedCard(null);
+        }}
+        onConfirm={handleSaveEdit}
+        confirmLabel="Salvar"
+        cancelLabel="Cancelar"
+      >
+        <TextInput
+          placeholder='Nome do Treino'
+          placeholderTextColor='#94a3b8'
+          value={editTitle}
+          onChangeText={setEditTitle}
+          style={{ backgroundColor: '#0b1220', padding: 12, borderRadius: 8, color: '#fff', marginBottom: 8 }}
+        />
+
+        <View style={styles.row}>
+          <TextInput
+            placeholder="Séries"
+            placeholderTextColor="#94a3b8"
+            keyboardType="numeric"
+            value={editSerie}
+            onChangeText={setEditSerie}
+            style={[styles.input, styles.half, styles.rightGap]}
+          />
+
+          <TextInput
+            placeholder="Repetições"
+            placeholderTextColor="#94a3b8"
+            keyboardType="numeric"
+            value={editReps}
+            onChangeText={setEditReps}
+            style={[styles.input, styles.half, styles.leftGap]}
+          />
+        </View>
+      </ModalGeneric>
     </>
   )
 }

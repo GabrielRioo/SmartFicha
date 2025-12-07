@@ -6,18 +6,20 @@ import { Card } from '@/components/Card';
 import { Exercise } from '@/app/Exercise';
 import { useNavigation } from '@react-navigation/native';
 import { Header } from '@/components/Header';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ModalGeneric } from '@/components/ModalGeneric';
 import { DropdownWeek } from '@/components/DropdownWeek';
 import { DropdownButton } from '@/components/DropdownButton';
 import * as ImagePicker from 'expo-image-picker';
+import { TrainingCard } from '@/types/TrainingCard'
+import { loadCards, saveCards } from '@/storage/trainingStorage';
 
-type TrainingCard = {
-  id: string;
-  title: string;
-  weekDay: string;
-  imageUri?: string | null;
-};
+// type TrainingCard = {
+//   id: string;
+//   title: string;
+//   weekDay: string;
+//   imageUri?: string | null;
+// };
 
 export default function Home() {
   const [cards, setCards] = useState<TrainingCard[]>([
@@ -44,16 +46,30 @@ export default function Home() {
   const [showNewFicha, setShowNewFicha] = useState(false)
   const navigation = useNavigation();
 
-  function handleCreateFicha() {
-    // salva a ficha (chamada API, supabase, state, etc)
-    console.log('Criar ficha:', fichaName);
-    setFichaName('');
-    setShowNewFicha(false);
-  }
+  // function handleCreateFicha() {
+  //   // salva a ficha (chamada API, supabase, state, etc)
+  //   console.log('Criar ficha:', fichaName);
+  //   setFichaName('');
+  //   setShowNewFicha(false);
+  // }
 
   function handleCreateManual() {
     // salva manualmente
     console.log('Criar manual:', { fichaName, day });
+    setCards(prev => {
+      const newCard = [
+        ...prev,
+        {
+          id: '3',
+          title: String(fichaName),
+          weekDay: String(day),
+          imageUri: null
+        },
+      ]
+      saveCards(newCard)
+      return newCard;
+    })
+
     setFichaName('');
     setDay(undefined);
     setOpenManualModal(false);
@@ -111,13 +127,17 @@ export default function Home() {
   function handleSaveEdit() {
     if (!selectedCard) return;
 
-    setCards(prev =>
-      prev.map(item =>
+    setCards(prev => {
+      const updatedCard = 
+      prev.map(item => 
         item.id === selectedCard.id
           ? { ...item, title: editTitle, weekDay: editWeekDay }
           : item
       )
-    );
+
+      saveCards(updatedCard);
+      return updatedCard;
+  });
 
     setShowEditModal(false);
     setSelectedCard(null);
@@ -133,12 +153,25 @@ export default function Home() {
           text: 'Excluir',
           style: 'destructive',
           onPress: () => {
-            setCards(prev => prev.filter(item => item.id !== card.id));
+            setCards(prev => {
+              const deletedCard = prev.filter(item => item.id !== card.id)
+              saveCards(deletedCard);
+              return deletedCard;
+            });
           },
         },
       ]
     );
   }
+
+  useEffect(() => {
+    async function load() {
+      const stored = await loadCards();
+      setCards(stored);
+    }
+
+    load();
+  }, [])
 
   return (
     <>
@@ -162,7 +195,7 @@ export default function Home() {
               title={card.title}
               weekDay={card.weekDay}
               image={false}
-              onPress={() => navigation.navigate('Exercise' as never)}
+              onPress={() => navigation.navigate('Exercise' as never, { title: card.title } as never)}
               onPressImage={() => handleOpenImageModal(card)}
               onPressEdit={() => handleOpenEditModal(card)}
               onPressDelete={() => handleDeleteCard(card)}
@@ -264,6 +297,7 @@ export default function Home() {
           {/* mais parâmetros */}
         </ModalGeneric>
 
+        {/* Modal Imagem */}
         <ModalGeneric
           visible={showImageModal && !!selectedCard}
           title={selectedCard?.title ?? 'Imagem do Treino'}
@@ -304,6 +338,7 @@ export default function Home() {
 
         </ModalGeneric>
 
+        {/* Modal Edit */}
         <ModalGeneric
           visible={showEditModal && !!selectedCard}
           title="Editar Treino"
