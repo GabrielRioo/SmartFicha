@@ -60,7 +60,7 @@ export default function Home() {
       const newCard = [
         ...prev,
         {
-          id: '3',
+          id: String(Date.now()),
           title: String(fichaName),
           weekDay: String(day),
           imageUri: null
@@ -195,7 +195,7 @@ export default function Home() {
               title={card.title}
               weekDay={card.weekDay}
               image={false}
-              onPress={() => navigation.navigate('Exercise' as never, { title: card.title } as never)}
+              onPress={() => navigation.navigate('Exercise' as never, { title: card.title, trainingId: card.id } as never)}
               onPressImage={() => handleOpenImageModal(card)}
               onPressEdit={() => handleOpenEditModal(card)}
               onPressDelete={() => handleDeleteCard(card)}

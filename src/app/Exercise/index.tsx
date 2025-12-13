@@ -22,15 +22,19 @@ import { loadExercises, saveExercises } from '@/storage/trainingStorage'
 
 export function Exercise() {
   const route = useRoute();
-  const { title } = route.params as { title: string }
+  const { title, trainingId } = route.params as { title: string; trainingId: string; }
 
   const [selectedCard, setSelectedCard] = useState<ExerciseCard | null>(null);
+  const [cards, setCards] = useState<ExerciseCard[]>([]);
 
+  const exercisesOfTraining = cards.filter(
+    item => item.trainingId === trainingId
+  );
 
-  const [cards, setCards] = useState<ExerciseCard[]>([
-    { id: '1', title: 'Peito e tríceps', serie: '3', reps: '12', imageUri: null },
-    { id: '2', title: 'Costas e bíceps', serie: '3', reps: '14', imageUri: null },
-  ]);
+  // const [cards, setCards] = useState<ExerciseCard[]>([
+  //   { id: '1', title: 'Peito e tríceps', serie: '3', reps: '12', imageUri: null },
+  //   { id: '2', title: 'Costas e bíceps', serie: '3', reps: '14', imageUri: null },
+  // ]);
 
   // modals
   const [showImageModal, setShowImageModal] = useState(false);
@@ -49,21 +53,26 @@ export function Exercise() {
   const navigation = useNavigation();
 
   function handleCreateNewExercise() {
-    setOpenModal(false)
+    const newExercise: ExerciseCard = {
+      id: String(Date.now()),
+      trainingId, // 🔥 vínculo com o treino atual
+      title: cardTitle,
+      serie: cardSerie,
+      reps: cardReps,
+      imageUri: exerciseImage,
+    };
+
     setCards(prev => {
-      const newCard = [
-        ...prev,
-        {
-          id: '3',
-          title: cardTitle,
-          serie: cardSerie,
-          reps: cardReps,
-          imageUri: null
-        },
-      ]
-      saveExercises(newCard)
-      return newCard;
-    })
+      const updated = [...prev, newExercise];
+      saveExercises(updated);
+      return updated;
+    });
+
+    setOpenModal(false);
+    setCardTitle('');
+    setCardSerie('');
+    setCardReps('');
+    setExerciseImage(null);
   }
 
   async function handlePickImage() {
@@ -126,6 +135,8 @@ export function Exercise() {
   function handleOpenEditModal(card: ExerciseCard) {
     setSelectedCard(card);
     setEditTitle(card.title)
+    setEditSerie(card.serie)
+    setEditReps(card.reps)
     // setEditWeekDay(card.weekDay);
     setShowEditModal(true);
   }
@@ -195,14 +206,13 @@ export function Exercise() {
       <Text style={styles.title}>{title}</Text>
 
       <View style={styles.container}>
-        {cards.map(card => (
+        {exercisesOfTraining.map(card => (
           <Card
             key={card.id}
             title={card.title}
             serie={card.serie}
             reps={card.reps}
-            image={true}
-            onPress={() => navigation.navigate('Exercise' as never)}
+            image
             onPressImage={() => handleOpenImageModal(card)}
             onPressEdit={() => handleOpenEditModal(card)}
             onPressDelete={() => handleDeleteCard(card)}
