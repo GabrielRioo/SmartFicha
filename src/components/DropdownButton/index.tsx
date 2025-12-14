@@ -30,6 +30,13 @@ export function DropdownButton({ title = 'Criar Novo Treino', onSelectManual, on
         </TouchableWithoutFeedback>
       )} */}
 
+      {/* overlay: coloca ANTES do menu (menu virá depois e ficará acima) */}
+      {open && (
+        <TouchableWithoutFeedback onPress={() => setOpen(false)}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+      )}
+
       <View style={styles.wrapper}>
         <TouchableOpacity
           style={styles.button}
@@ -38,27 +45,21 @@ export function DropdownButton({ title = 'Criar Novo Treino', onSelectManual, on
         >
           <Text style={styles.buttonText}>{title}</Text>
         </TouchableOpacity>
+
+        {open && (
+          // Menu absoluto para não empurrar layout
+          <View style={styles.menu}>
+            <TouchableOpacity style={styles.item} onPress={handleManual}>
+              <Text style={styles.itemText}>Criar manualmente</Text>
+            </TouchableOpacity>
+
+            {/* <TouchableOpacity style={[styles.item, styles.disabled]} onPress={handleAI}> */}
+            <TouchableOpacity style={[styles.item, styles.disabled]} >
+              <Text style={styles.itemText}>Gerar por IA (em breve)</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
-
-      {/* overlay: coloca ANTES do menu (menu virá depois e ficará acima) */}
-      {open && (
-        <TouchableWithoutFeedback onPress={() => setOpen(false)}>
-          <View style={styles.overlay} />
-        </TouchableWithoutFeedback>
-      )}
-
-      {open && (
-        // Menu absoluto para não empurrar layout
-        <View style={styles.menu}>
-          <TouchableOpacity style={styles.item} onPress={handleManual}>
-            <Text style={styles.itemText}>Criar manualmente</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.item} onPress={handleAI}>
-            <Text style={styles.itemText}>Gerar por IA</Text>
-          </TouchableOpacity>
-        </View>
-      )}
     </>
   )
 }

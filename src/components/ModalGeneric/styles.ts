@@ -1,71 +1,78 @@
 import { StyleSheet } from 'react-native'
 
 export const styles = StyleSheet.create({
-   backdrop: {
+  backdrop: {
     flex: 1,
     backgroundColor: "#00000066",
-   },
+  },
 
-   center: {
+  center: {
     position: 'absolute',
     left: 16,
     right: 16,
     top: '20%',
     alignItems: 'center',
-   },
+  },
 
-   modal: {
+  modal: {
     width: '100%',
     backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 16,
+
+    overflow: 'visible', // 🔥 ESSENCIAL NO WEB
+
     elevation: 8,
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    shadowOffset: {width: 0, height: 4},
-   },
+    shadowOffset: { width: 0, height: 4 },
+  },
 
-   title: {
+  title: {
     fontSize: 18,
     fontWeight: 700,
     color: '#10b981',
     textAlign: 'center',
     marginBottom: 8
-   },
+  },
 
-   content: {
+  content: {
     marginBottom: 12,
-   },
+    overflow: 'visible', // permite dropdown sair
+    zIndex: 10,          // fica acima do footer
+  },
 
-   footer: {
+  footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 8,
-   },
 
-   btn: {
+    zIndex: 1, // menor que o dropdown
+  },
+
+  btn: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 12
-   },
+  },
 
-    btnCancel: {
-      backgroundColor: '#1f2937',
-    },
+  btnCancel: {
+    backgroundColor: '#1f2937',
+  },
 
-    btnConfirm: {
-      backgroundColor: '#10b981',
-    },
+  btnConfirm: {
+    backgroundColor: '#10b981',
+  },
 
-    btnText: {
-      color: '#cbd5e1',
+  btnText: {
+    color: '#cbd5e1',
     fontWeight: '600',
-    },
+  },
 
-    btnConfirmText: {
+  btnConfirmText: {
     color: '#04211b',
   },
 

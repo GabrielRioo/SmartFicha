@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet} from 'react-native'
+import { Dimensions, StyleSheet } from 'react-native'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
   menu: {
     position: 'absolute',
     top: '100%',
-    left: 16,
+    left: 0,
     right: 16,
     marginTop: 8,
     // width: Math.min(SCREEN_WIDTH * 0.95, 420),
@@ -51,6 +51,12 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderWidth: 1,
     borderColor: '#1f2937',
+  },
+  disabled: {
+    backgroundColor: '#020617',
+    opacity: 0.5,
+    color: '#64748b',
+    cursor: 'not-allowed' as any,
   },
   itemText: {
     color: '#e2e8f0',

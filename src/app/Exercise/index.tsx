@@ -26,6 +26,8 @@ export function Exercise() {
 
   const [selectedCard, setSelectedCard] = useState<ExerciseCard | null>(null);
   const [cards, setCards] = useState<ExerciseCard[]>([]);
+  const [cardToDelete, setCardToDelete] = useState<ExerciseCard | null>(null);
+
 
   const exercisesOfTraining = cards.filter(
     item => item.trainingId === trainingId
@@ -38,6 +40,7 @@ export function Exercise() {
 
   // modals
   const [showImageModal, setShowImageModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [openModal, setOpenModal] = useState(false)
 
@@ -160,25 +163,30 @@ export function Exercise() {
   }
 
   function handleDeleteCard(card: ExerciseCard) {
-    Alert.alert(
-      'Excluir treino',
-      `Tem certeza que deseja excluir "${card.title}"?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: () => {
-            setCards(prev => {
-              const deletedCard = prev.filter(item => item.id !== card.id)
-              saveExercises(deletedCard)
-              return deletedCard
-            });
-          },
-        },
-      ]
-    );
+    setCardToDelete(card);
+    setShowDeleteModal(true);
   }
+
+  // function handleDeleteCard(card: ExerciseCard) {
+  //   Alert.alert(
+  //     'Excluir treino',
+  //     `Tem certeza que deseja excluir "${card.title}"?`,
+  //     [
+  //       { text: 'Cancelar', style: 'cancel' },
+  //       {
+  //         text: 'Excluir',
+  //         style: 'destructive',
+  //         onPress: () => {
+  //           setCards(prev => {
+  //             const deletedCard = prev.filter(item => item.id !== card.id)
+  //             saveExercises(deletedCard)
+  //             return deletedCard
+  //           });
+  //         },
+  //       },
+  //     ]
+  //   );
+  // }
 
   useEffect(() => {
     async function load() {
@@ -369,6 +377,38 @@ export function Exercise() {
           />
         </View>
       </ModalGeneric>
+
+      {/* Modal para deletar */}
+              <ModalGeneric
+                visible={showDeleteModal && !!cardToDelete}
+                title="Excluir treino"
+                confirmLabel="Excluir"
+                cancelLabel="Cancelar"
+                onClose={() => {
+                  setShowDeleteModal(false);
+                  setCardToDelete(null);
+                }}
+                onConfirm={() => {
+                  if (!cardToDelete) return;
+      
+                  setCards(prev => {
+                    const updated = prev.filter(item => item.id !== cardToDelete.id);
+                    saveExercises(updated);
+                    return updated;
+                  });
+      
+                  setShowDeleteModal(false);
+                  setCardToDelete(null);
+                }}
+              >
+                <Text style={{ color: '#cbd5e1', textAlign: 'center' }}>
+                  Tem certeza que deseja excluir{" "}
+                  <Text style={{ color: '#fff', fontWeight: '700' }}>
+                    {cardToDelete?.title}
+                  </Text>
+                  ?
+                </Text>
+              </ModalGeneric>
     </>
   )
 }

@@ -28,10 +28,12 @@ export default function Home() {
   ]);
 
   const [selectedCard, setSelectedCard] = useState<TrainingCard | null>(null);
+  const [cardToDelete, setCardToDelete] = useState<TrainingCard | null>(null);
 
   // modais
   const [showImageModal, setShowImageModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [openManualModal, setOpenManualModal] = useState(false);
   const [openAIModal, setOpenAIModal] = useState(false);
 
@@ -128,41 +130,46 @@ export default function Home() {
     if (!selectedCard) return;
 
     setCards(prev => {
-      const updatedCard = 
-      prev.map(item => 
-        item.id === selectedCard.id
-          ? { ...item, title: editTitle, weekDay: editWeekDay }
-          : item
-      )
+      const updatedCard =
+        prev.map(item =>
+          item.id === selectedCard.id
+            ? { ...item, title: editTitle, weekDay: editWeekDay }
+            : item
+        )
 
       saveCards(updatedCard);
       return updatedCard;
-  });
+    });
 
     setShowEditModal(false);
     setSelectedCard(null);
   }
 
   function handleDeleteCard(card: TrainingCard) {
-    Alert.alert(
-      'Excluir treino',
-      `Tem certeza que deseja excluir "${card.title}"?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: () => {
-            setCards(prev => {
-              const deletedCard = prev.filter(item => item.id !== card.id)
-              saveCards(deletedCard);
-              return deletedCard;
-            });
-          },
-        },
-      ]
-    );
+    setCardToDelete(card);
+    setShowDeleteModal(true);
   }
+
+  // function handleDeleteCard(card: TrainingCard) {
+  //   Alert.alert(
+  //     'Excluir treino',
+  //     `Tem certeza que deseja excluir "${card.title}"?`,
+  //     [
+  //       { text: 'Cancelar', style: 'cancel' },
+  //       {
+  //         text: 'Excluir',
+  //         style: 'destructive',
+  //         onPress: () => {
+  //           setCards(prev => {
+  //             const deletedCard = prev.filter(item => item.id !== card.id)
+  //             saveCards(deletedCard);
+  //             return deletedCard;
+  //           });
+  //         },
+  //       },
+  //     ]
+  //   );
+  // }
 
   useEffect(() => {
     async function load() {
@@ -187,21 +194,22 @@ export default function Home() {
             onSelectManual={() => setOpenManualModal(true)}
             onSelectAI={() => setOpenAIModal(true)}
           />
-        </View>
-        <View style={styles.cards}>
-          {cards.map(card => (
-            <Card
-              key={card.id}
-              title={card.title}
-              weekDay={card.weekDay}
-              image={false}
-              onPress={() => navigation.navigate('Exercise' as never, { title: card.title, trainingId: card.id } as never)}
-              onPressImage={() => handleOpenImageModal(card)}
-              onPressEdit={() => handleOpenEditModal(card)}
-              onPressDelete={() => handleDeleteCard(card)}
-            />
-          ))}
-          {/* <Card title='Peito e triceps' weekDay='segunda-feira' onPress={() => navigation.navigate('Exercise' as never)} /> */}
+
+          <View style={styles.cards}>
+            {cards.map(card => (
+              <Card
+                key={card.id}
+                title={card.title}
+                weekDay={card.weekDay}
+                image={false}
+                onPress={() => navigation.navigate('Exercise' as never, { title: card.title, trainingId: card.id } as never)}
+                onPressImage={() => handleOpenImageModal(card)}
+                onPressEdit={() => handleOpenEditModal(card)}
+                onPressDelete={() => handleDeleteCard(card)}
+              />
+            ))}
+            {/* <Card title='Peito e triceps' weekDay='segunda-feira' onPress={() => navigation.navigate('Exercise' as never)} /> */}
+          </View>
         </View>
 
         {/* Modal Manual */}
@@ -364,6 +372,38 @@ export default function Home() {
             onChangeText={setEditWeekDay}
             placeholder="Escolha o dia do treino"
           />
+        </ModalGeneric>
+
+        {/* Modal para deletar */}
+        <ModalGeneric
+          visible={showDeleteModal && !!cardToDelete}
+          title="Excluir treino"
+          confirmLabel="Excluir"
+          cancelLabel="Cancelar"
+          onClose={() => {
+            setShowDeleteModal(false);
+            setCardToDelete(null);
+          }}
+          onConfirm={() => {
+            if (!cardToDelete) return;
+
+            setCards(prev => {
+              const updated = prev.filter(item => item.id !== cardToDelete.id);
+              saveCards(updated);
+              return updated;
+            });
+
+            setShowDeleteModal(false);
+            setCardToDelete(null);
+          }}
+        >
+          <Text style={{ color: '#cbd5e1', textAlign: 'center' }}>
+            Tem certeza que deseja excluir{" "}
+            <Text style={{ color: '#fff', fontWeight: '700' }}>
+              {cardToDelete?.title}
+            </Text>
+            ?
+          </Text>
         </ModalGeneric>
 
       </View>
