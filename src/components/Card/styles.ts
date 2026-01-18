@@ -41,6 +41,16 @@ export const styles = StyleSheet.create({
     color: '#94a3b8'
   },
 
+  container_description: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+
+  upanddown: {
+    gap: 2
+  },
+
   serie: {
     color: '#94a3b8'
   },

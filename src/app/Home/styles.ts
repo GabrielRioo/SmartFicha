@@ -24,9 +24,9 @@ export const styles = StyleSheet.create({
   },
 
   scrollContent: {
-    paddingBottom: 8,
     gap: 8,            // se sua versão RN não suportar 'gap', o espaçamento vem via margin nos inputs/rows
     width: '100%',
+    paddingBottom: 120
   },
 
   input: {

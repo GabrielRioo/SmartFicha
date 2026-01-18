@@ -25,6 +25,13 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16
   },
 
+  disabled: {
+    backgroundColor: '#020617',
+    opacity: 0.5,
+    color: '#64748b',
+    cursor: 'not-allowed' as any,
+  },
+
   buttonWrapper: {
     flex: 1, 
   },
@@ -34,6 +41,7 @@ export const styles = StyleSheet.create({
   },
 
   input: {
+    width: '100%',
     backgroundColor: '#0b1220',
     paddingHorizontal: 12,
     paddingVertical: 12,
@@ -63,6 +71,10 @@ export const styles = StyleSheet.create({
     marginLeft: 8,
   },
 
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  
   imagePreviewContainer: {
     width: 200,
     height: 150,

@@ -1,4 +1,4 @@
-import { Text, TextInput, View, Image, TouchableOpacity, Alert } from 'react-native'
+import { Text, TextInput, View, Image, TouchableOpacity, Alert, ScrollView } from 'react-native'
 import { styles } from '@/app/Exercise/styles'
 import { Card } from '@/components/Card'
 import { Header } from '@/components/Header'
@@ -11,6 +11,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { DropdownWeek } from '@/components/DropdownWeek'
 import { ExerciseCard } from '@/types/ExerciseCard'
 import { loadExercises, saveExercises } from '@/storage/trainingStorage'
+import DraggableFlatList, {
+  RenderItemParams,
+} from "react-native-draggable-flatlist";
 
 // type ExerciseCard = {
 //   id: string;
@@ -167,6 +170,41 @@ export function Exercise() {
     setShowDeleteModal(true);
   }
 
+  function moveExerciseUp(id: string) {
+  setCards(prev => {
+    const list = prev.filter(item => item.trainingId === trainingId);
+    const others = prev.filter(item => item.trainingId !== trainingId);
+
+    const index = list.findIndex(item => item.id === id);
+    if (index <= 0) return prev; // já é o primeiro
+
+    const newList = [...list];
+    [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
+
+    const updated = [...others, ...newList];
+    saveExercises(updated);
+    return updated;
+  });
+}
+
+function moveExerciseDown(id: string) {
+  setCards(prev => {
+    const list = prev.filter(item => item.trainingId === trainingId);
+    const others = prev.filter(item => item.trainingId !== trainingId);
+
+    const index = list.findIndex(item => item.id === id);
+    if (index === -1 || index === list.length - 1) return prev; // já é o último
+
+    const newList = [...list];
+    [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
+
+    const updated = [...others, ...newList];
+    saveExercises(updated);
+    return updated;
+  });
+}
+
+
   // function handleDeleteCard(card: ExerciseCard) {
   //   Alert.alert(
   //     'Excluir treino',
@@ -202,9 +240,17 @@ export function Exercise() {
       <Header onPress={() => navigation.goBack()} />
 
       <View style={styles.buttons}>
-        <View style={styles.buttonWrapper}>
-          <Button title='Exportar' icon={<Download size={18} color={'white'} />} />
+        <View style={[styles.buttonWrapper, styles.disabled]}>
+          <Button title='Baixar PDF' icon={<Download size={18} color={'white'} />} />
         </View>
+
+        {/* <View style={[styles.buttonWrapper, styles.disabled]}>
+          <Button title='Exportar' />
+        </View>
+
+        <View style={[styles.buttonWrapper, styles.disabled]}>
+          <Button title='Importar' />
+        </View> */}
 
         <View style={styles.buttonWrapper}>
           <Button title='Novo Exercicio' onPress={() => setOpenModal(true)} />
@@ -213,7 +259,10 @@ export function Exercise() {
 
       <Text style={styles.title}>{title}</Text>
 
-      <View style={styles.container}>
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}>
         {exercisesOfTraining.map(card => (
           <Card
             key={card.id}
@@ -224,6 +273,8 @@ export function Exercise() {
             onPressImage={() => handleOpenImageModal(card)}
             onPressEdit={() => handleOpenEditModal(card)}
             onPressDelete={() => handleDeleteCard(card)}
+            onMoveUp={() => moveExerciseUp(card.id)}
+            onMoveDown={() => moveExerciseDown(card.id)}
           />
         ))}
         {/* <Card title='Rosca direta' serie='3' reps='12' image onPressImage={() => handleOpenImageModal(card)}
@@ -231,7 +282,7 @@ export function Exercise() {
               onPressDelete={() => handleDeleteCard(card)}/>
         <Card title='Supino Reto' serie='3' reps='12' image/>
         <Card title='Cruxifixo inverso na barra' serie='3' reps='12' image/> */}
-      </View>
+      </ScrollView>
 
       <ModalGeneric
         title='Novo Exercício'

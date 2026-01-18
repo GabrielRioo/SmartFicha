@@ -2,6 +2,8 @@ import { styles } from '@/components/Card/styles'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { Trash2, SquarePen, Image } from 'lucide-react-native'
 import { Icon } from '@/components/Icon'
+import { ChevronUp, ChevronDown } from 'lucide-react-native';
+
 
 type Props = {
   title: string
@@ -13,6 +15,8 @@ type Props = {
   onPressImage?: () => void
   onPressEdit?: () => void
   onPressDelete?: () => void
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
 }
 
 export function Card({
@@ -25,6 +29,8 @@ export function Card({
   onPressImage,
   onPressEdit,
   onPressDelete,
+  onMoveUp,
+  onMoveDown
 }: Props) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
@@ -54,18 +60,41 @@ export function Card({
         <View style={styles.description}>
           {
             weekDay && weekDay.trim() !== '' ? (
-              <Text style={styles.day}>{weekDay}</Text>
+              <View style={styles.container_description}>
+                <Text style={styles.day}>{weekDay}</Text>
+                <View style={styles.upanddown}>
+                  <TouchableOpacity onPress={onMoveUp}>
+                    <ChevronUp size={25} color="#c2c7ce" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={onMoveDown}>
+                    <ChevronDown size={25} color="#c2c7ce" />
+                  </TouchableOpacity>
+                </View>
+              </View>
             ) : (
-              <>
-                <Text style={styles.serie}>
-                  Séries:
-                  <Text>{serie}</Text>
-                </Text>
-                <Text style={styles.reps}>
-                  Repetições:
-                  <Text>{reps}</Text>
-                </Text>
-              </>
+              <View style={styles.container_description}>
+                <View>
+                  <Text style={styles.serie}>
+                    Séries:
+                    <Text>{serie}</Text>
+                  </Text>
+                  <Text style={styles.reps}>
+                    Repetições:
+                    <Text>{reps}</Text>
+                  </Text>
+                </View>
+
+                <View style={styles.upanddown}>
+                  <TouchableOpacity onPress={onMoveUp}>
+                    <ChevronUp size={25} color="#c2c7ce" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={onMoveDown}>
+                    <ChevronDown size={25} color="#c2c7ce" />
+                  </TouchableOpacity>
+                </View>
+              </View>
             )
           }
         </View>

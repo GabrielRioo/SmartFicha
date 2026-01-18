@@ -150,6 +150,33 @@ export default function Home() {
     setShowDeleteModal(true);
   }
 
+  function moveTrainingUp(id: string) {
+    setCards(prev => {
+      const index = prev.findIndex(item => item.id === id);
+      if (index <= 0) return prev; // já é o primeiro
+
+      const newList = [...prev];
+      [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
+
+      saveCards(newList);
+      return newList;
+    });
+  }
+
+  function moveTrainingDown(id: string) {
+    setCards(prev => {
+      const index = prev.findIndex(item => item.id === id);
+      if (index === -1 || index === prev.length - 1) return prev; // já é o último
+
+      const newList = [...prev];
+      [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
+
+      saveCards(newList);
+      return newList;
+    });
+  }
+
+
   // function handleDeleteCard(card: TrainingCard) {
   //   Alert.alert(
   //     'Excluir treino',
@@ -195,7 +222,11 @@ export default function Home() {
             onSelectAI={() => setOpenAIModal(true)}
           />
 
-          <View style={styles.cards}>
+          <ScrollView
+            style={styles.cards}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
             {cards.map(card => (
               <Card
                 key={card.id}
@@ -206,10 +237,12 @@ export default function Home() {
                 onPressImage={() => handleOpenImageModal(card)}
                 onPressEdit={() => handleOpenEditModal(card)}
                 onPressDelete={() => handleDeleteCard(card)}
+                onMoveUp={() => moveTrainingUp(card.id)}
+                onMoveDown={() => moveTrainingDown(card.id)}
               />
             ))}
             {/* <Card title='Peito e triceps' weekDay='segunda-feira' onPress={() => navigation.navigate('Exercise' as never)} /> */}
-          </View>
+          </ScrollView>
         </View>
 
         {/* Modal Manual */}
